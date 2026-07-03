@@ -1,0 +1,17 @@
+{
+  "name": "drip-bot",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Bot d'ingestion Drip : lit les flux Awin + scrape des pages produit et poste les meilleures réductions sur drip-fr.netlify.app via /api/ingest/deals.",
+  "scripts": {
+    "start": "node src/index.js",
+    "dry": "DRY_RUN=1 node src/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "csv-parse": "^5.5.6"
+  }
+}
