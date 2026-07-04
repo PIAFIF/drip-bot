@@ -53,6 +53,7 @@ async function scrapeOne(url) {
   const res = await fetch(url, {
     headers: { 'user-agent': 'Mozilla/5.0 (compatible; drip-bot/1.0; +https://drip-fr.netlify.app)' },
     redirect: 'follow',
+    signal: AbortSignal.timeout(12000), // never let one slow/hanging site stall the run
   });
   if (!res.ok) throw new Error(`http ${res.status}`);
   const html = await res.text();

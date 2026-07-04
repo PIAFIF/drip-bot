@@ -1,5 +1,6 @@
 import { getConfig, postDeal } from './drip.js';
 import { fromAwin } from './sources/awin.js';
+import { fromShopify } from './sources/shopify.js';
 import { fromSites } from './sources/jsonld.js';
 
 const DRY = process.env.DRY_RUN === '1';
@@ -17,15 +18,16 @@ async function main() {
 
   // Gather candidate deals from every source.
   console.log('Sources :');
-  const [awinDeals, siteDeals] = await Promise.all([
+  const [awinDeals, shopifyDeals, siteDeals] = await Promise.all([
     fromAwin({ perFeed: Number(process.env.AWIN_PER_FEED || 5) }),
+    fromShopify({ perStore: Number(process.env.SHOPIFY_PER_STORE || 4) }),
     fromSites(config.sites),
   ]);
 
   // Dedupe within this run by merchant URL, cap the batch (server also dedupes
-  // against already-published deals).
+  // against already-published deals). Shopify first: cleanest, most reliable data.
   const seen = new Set();
-  const candidates = [...awinDeals, ...siteDeals].filter((d) => {
+  const candidates = [...shopifyDeals, ...awinDeals, ...siteDeals].filter((d) => {
     if (seen.has(d.merchantUrl)) return false;
     seen.add(d.merchantUrl);
     return true;
