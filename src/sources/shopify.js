@@ -93,6 +93,12 @@ function productToDeal(store, p) {
   const image = p.images?.[0]?.src || p.image?.src || null;
   const desc = stripHtml(p.body_html).slice(0, 4900) || name;
 
+  // Safety-net expiry: markdowns rarely last more than a couple of weeks, so bot
+  // deals auto-expire (grey out) after BOT_DEAL_TTL_DAYS instead of staying "active"
+  // forever. (Precise re-verification of live promos is a separate mechanism.)
+  const ttlDays = Number(process.env.BOT_DEAL_TTL_DAYS || 14);
+  const expiresAt = new Date(Date.now() + ttlDays * 86400000).toISOString();
+
   return {
     payload: {
       title: name.length >= 10 ? name.slice(0, 140) : `${name} — bon plan mode`,
@@ -100,6 +106,7 @@ function productToDeal(store, p) {
       description: desc.length >= 10 ? desc : `${name} — repéré par le bot Drip.`,
       priceBeforeCents: best.before,
       priceAfterCents: best.after,
+      expiresAt,
       merchantUrl: `https://${store}/products/${p.handle}`,
       imageUrl: image && /^https?:\/\//.test(image) ? image : null,
       genderSlug: cat.gender,
