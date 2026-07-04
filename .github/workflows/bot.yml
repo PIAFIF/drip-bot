@@ -22,7 +22,9 @@ jobs:
       - run: npm ci
       - run: npm start
         env:
-          DRIP_BASE_URL: https://driptestv2.netlify.app
+          # Post to both sites (they share the same INGEST_API_KEY). A site that
+          # doesn't have the key set yet is skipped gracefully.
+          DRIP_TARGETS: https://driptestv2.netlify.app,https://drip-fr.netlify.app
           INGEST_API_KEY: ${{ secrets.INGEST_API_KEY }}
           AWIN_FEED_URLS: ${{ secrets.AWIN_FEED_URLS }}
           AWIN_PER_FEED: '5'
