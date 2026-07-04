@@ -1,10 +1,12 @@
 name: drip-bot
 
-# Scans every 3 hours (and on manual trigger). Adjust the cron as you like —
-# Awin feeds don't change more than a few times a day, so hourly is plenty.
+# Runs every 5 minutes (GitHub Actions' minimum) + on manual trigger.
+# NOTE: GitHub's scheduler is best-effort and may delay/skip runs under load.
+# On a PRIVATE repo this burns the free Actions minutes fast (~2000 min/month);
+# make the repo public for unlimited minutes, or lengthen the interval.
 on:
   schedule:
-    - cron: '0 */3 * * *'
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -20,7 +22,7 @@ jobs:
       - run: npm ci
       - run: npm start
         env:
-          DRIP_BASE_URL: https://drip-fr.netlify.app
+          DRIP_BASE_URL: https://driptestv2.netlify.app
           INGEST_API_KEY: ${{ secrets.INGEST_API_KEY }}
           AWIN_FEED_URLS: ${{ secrets.AWIN_FEED_URLS }}
           AWIN_PER_FEED: '5'
