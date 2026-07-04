@@ -1,7 +1,6 @@
 import { getConfig, postDeal } from './drip.js';
 import { fromAwin } from './sources/awin.js';
 import { fromShopify } from './sources/shopify.js';
-import { fromSites } from './sources/jsonld.js';
 
 const DRY = process.env.DRY_RUN === '1';
 const MAX_PER_RUN = Number(process.env.MAX_PER_RUN || 20);
@@ -21,7 +20,7 @@ async function main() {
   for (const base of TARGETS) {
     try {
       const c = await getConfig(base);
-      console.log(`  ${base}: enabled=${c.enabled} autoPublish=${c.autoPublish} sites=${c.sites.length}`);
+      console.log(`  ${base}: enabled=${c.enabled} autoPublish=${c.autoPublish}`);
       if (c.enabled) active.push({ base, ...c });
     } catch (e) {
       console.warn(`  ${base}: ${e.message} — cible ignorée`);
@@ -32,18 +31,15 @@ async function main() {
     return;
   }
 
-  // Gather candidate deals once (sources are site-independent; jsonld scans the
-  // union of every target's admin site list).
+  // Gather candidate deals once (sources are site-independent).
   console.log('Sources :');
-  const allSites = [...new Set(active.flatMap((t) => t.sites))];
-  const [awinDeals, shopifyDeals, siteDeals] = await Promise.all([
+  const [awinDeals, shopifyDeals] = await Promise.all([
     fromAwin({ perFeed: Number(process.env.AWIN_PER_FEED || 5) }),
     fromShopify({ perStore: Number(process.env.SHOPIFY_PER_STORE || 4) }),
-    fromSites(allSites),
   ]);
 
   const seen = new Set();
-  const candidates = [...shopifyDeals, ...awinDeals, ...siteDeals]
+  const candidates = [...shopifyDeals, ...awinDeals]
     .filter((d) => {
       if (seen.has(d.merchantUrl)) return false;
       seen.add(d.merchantUrl);
