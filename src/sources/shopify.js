@@ -31,6 +31,25 @@ const DEFAULT_STORES = [
   'www.teddysmith.com',
   'www.paulandjoe.com',
   'www.repetto.fr',
+  'www.jott.com',
+  'www.saint-james.com',
+  'www.pyrenex.com',
+  'www.dim.fr',
+  'www.rouje.com',
+  'www.musier-paris.com',
+  'www.avnier.com',
+  'www.maisonlabiche.com',
+  'www.cuissedegrenouille.com',
+  'www.armorlux.com',
+  'www.pull-in.com',
+  'www.circlesportswear.com',
+  'www.cluse.com',
+  'www.rains.com',
+  'www.organicbasics.com',
+  'www.mercihandy.com',
+  'www.ohmycream.com',
+  // Site multi-marques (vendeurs mainstream variés)
+  'www.thebradery.com',
 ];
 
 const toCents = (v) => {
