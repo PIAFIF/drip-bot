@@ -26,4 +26,7 @@ jobs:
           INGEST_API_KEY: ${{ secrets.INGEST_API_KEY }}
           AWIN_FEED_URLS: ${{ secrets.AWIN_FEED_URLS }}
           AWIN_PER_FEED: '5'
-          MAX_PER_RUN: '20'
+          SHOPIFY_PER_STORE: '3'
+          # High cap: every store's current markdowns are sent each run; the server
+          # dedupes already-published ones, so only genuinely new deals get created.
+          MAX_PER_RUN: '80'
