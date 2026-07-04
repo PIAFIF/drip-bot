@@ -81,6 +81,17 @@ function productToDeal(store, p) {
   };
 }
 
+// Fisher-Yates shuffle so each run surfaces DIFFERENT products from the store's
+// discounted catalog (otherwise we'd always pick the same top-N and post nothing
+// new after the first run — the server dedupes by URL).
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 async function fetchStore(store, perStore) {
   // One polite request per store (first 250 products carry plenty of markdowns).
   const url = `https://${store}/products.json?limit=250`;
@@ -90,12 +101,17 @@ async function fetchStore(store, perStore) {
   });
   if (!res.ok) throw new Error(`http ${res.status}`);
   const json = await res.json();
-  const deals = [];
+
+  const minDiscount = Number(process.env.MIN_DISCOUNT || 20);
+  let deals = [];
   for (const p of json.products || []) {
     const d = productToDeal(store, p);
     if (d) deals.push(d);
   }
-  return deals.sort((a, b) => b.disc - a.disc).slice(0, perStore).map((d) => d.payload);
+  // Keep meaningful markdowns; fall back to all if the store has few.
+  const strong = deals.filter((d) => d.disc >= minDiscount);
+  const pool = strong.length >= perStore ? strong : deals;
+  return shuffle(pool).slice(0, perStore).map((d) => d.payload);
 }
 
 // Pulls the best-discounted products across the default + env-configured stores.
