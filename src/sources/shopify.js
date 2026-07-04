@@ -69,6 +69,20 @@ const toCents = (v) => {
 
 const stripHtml = (s) => (s || '').replace(/<[^>]+>/g, ' ').replace(/&[a-z]+;/gi, ' ').replace(/\s+/g, ' ').trim();
 
+// Best-effort promo end date: some stores tag a sale end (e.g. "sale-ends-2026-07-31"
+// or "solde-jusqu-au-31/07/2026"). If we find a future date, use it; otherwise the
+// caller falls back to the default TTL. (Standard Shopify feeds rarely carry one.)
+function promoEndFromTags(tags) {
+  for (const raw of tags || []) {
+    const m = String(raw).match(/(\d{4})[-/](\d{1,2})[-/](\d{1,2})|(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
+    if (!m) continue;
+    const iso = m[1] ? `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}` : `${m[6]}-${m[5].padStart(2, '0')}-${m[4].padStart(2, '0')}`;
+    const d = new Date(`${iso}T23:59:59`);
+    if (!Number.isNaN(d.getTime()) && d.getTime() > Date.now()) return d.toISOString();
+  }
+  return null;
+}
+
 function productToDeal(store, p) {
   // Best available variant with a real markdown.
   let best = null;
@@ -93,11 +107,10 @@ function productToDeal(store, p) {
   const image = p.images?.[0]?.src || p.image?.src || null;
   const desc = stripHtml(p.body_html).slice(0, 4900) || name;
 
-  // Safety-net expiry: markdowns rarely last more than a couple of weeks, so bot
-  // deals auto-expire (grey out) after BOT_DEAL_TTL_DAYS instead of staying "active"
-  // forever. (Precise re-verification of live promos is a separate mechanism.)
+  // Use the store's promo end date if it exposes one; otherwise a safety-net TTL so
+  // deals don't stay "active" forever.
   const ttlDays = Number(process.env.BOT_DEAL_TTL_DAYS || 14);
-  const expiresAt = new Date(Date.now() + ttlDays * 86400000).toISOString();
+  const expiresAt = promoEndFromTags(p.tags) || new Date(Date.now() + ttlDays * 86400000).toISOString();
 
   return {
     payload: {
