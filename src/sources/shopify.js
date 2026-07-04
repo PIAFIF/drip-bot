@@ -6,9 +6,11 @@ import { classify } from '../classify.js';
 // markdown. We read it directly (clean JSON, no HTML scraping, no anti-bot fight)
 // and post the best discounts with a real product link.
 //
-// Curated default list of fashion brands confirmed to run on Shopify (EUR).
-// Add more via the SHOPIFY_STORES env var (comma-separated hostnames).
+// Curated default list of fashion brands confirmed to run on Shopify and to price
+// in EUR (mixing prices from a non-EUR store would be wrong, since products.json
+// carries no currency). Add more via the SHOPIFY_STORES env var (comma-separated).
 const DEFAULT_STORES = [
+  // DTC / créateurs
   'www.leslipfrancais.fr',
   'www.bonnegueule.fr',
   'www.seasonly.fr',
@@ -17,6 +19,18 @@ const DEFAULT_STORES = [
   'www.komono.com',
   'www.polene-paris.com',
   'www.jimmyfairly.com',
+  'www.m-moustache.com',
+  'www.hast.fr',
+  'www.colorfulstandard.com',
+  // Marques plus connues (mainstream accessible via Shopify)
+  'www.napapijri.com',
+  'www.lecoqsportif.com',
+  'www.scotch-soda.com',
+  'www.pimkie.fr',
+  'www.izac.fr',
+  'www.teddysmith.com',
+  'www.paulandjoe.com',
+  'www.repetto.fr',
 ];
 
 const toCents = (v) => {
