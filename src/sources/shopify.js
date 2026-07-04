@@ -48,6 +48,16 @@ const DEFAULT_STORES = [
   'www.organicbasics.com',
   'www.mercihandy.com',
   'www.ohmycream.com',
+  'www.danielwellington.com',
+  'www.kappa.com',
+  'www.eytys.com',
+  'www.eden-park.fr',
+  'www.faguo.fr',
+  'www.izipizi.com',
+  'www.soeur.fr',
+  'www.molli.com',
+  'www.respire.co',
+  'www.absolution-cosmetics.com',
   // Site multi-marques (vendeurs mainstream variés)
   'www.thebradery.com',
 ];
